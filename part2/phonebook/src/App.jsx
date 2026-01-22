@@ -1,93 +1,81 @@
-import { useState } from "react";
-import Entry from './components/Entry'
-
+import { useState, useEffect } from "react";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
+import PersonList from "./components/PersonList";
+import phonebookService from './services/phonebook'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
-  const [newName, setNewName] = useState("");
-  const [newNumber, setNewNumber] = useState("");
+  const [persons, setPersons] = useState([])
+  const [newEntry, setNewEntry] = useState({name: "" , number: ""})
   const [newFilter, setNewFilter] = useState("");
-  const [showAll, setShowAll] = useState(true);
+
+  useEffect(() => {
+    phonebookService.getAll().then((initialPhonebook) => {
+      setPersons(initialPhonebook)
+    })
+  }, [])
+
 
   const addEntry = (event) => {
     event.preventDefault();
 
-    const exists = persons.some((p) => p.name === newName);
-
+    const exists = persons.some((p) => p.name === newEntry.name);
     if (exists) {
-      alert(`${newName} is already added to phonebook`);
-      setNewName("");
-      setNewNumber("");
+      confirm(`${newEntry.name} is already added to phonebook, replace the old number with a new one?`);
+      phonebookService.alterEntry(persons.find(x => x.name === newEntry.name), newEntry.number).then((returnedEntry) => {
+        setPersons(persons.map(p => p.id !== returnedEntry.id ? p : returnedEntry))
+      })
+      setNewEntry({name: "" , number: ""})
       return;
     }
 
-    const newEntry = {
-      name: newName,
-      id: String(persons.length + 1),
-      number: newNumber,
+    const newPerson = {
+      name: newEntry.name,
+      number: newEntry.number,
+      id: String(Math.max(...persons.map(o => o.id)) +1),
     };
 
-    setPersons(persons.concat(newEntry));
-    setNewName("");
-    setNewNumber("");
+    phonebookService.create(newPerson).then((returnedEntry) => {
+      setPersons(persons.concat(returnedEntry))
+      setNewEntry({name: "" , number: ""})
+    })
   };
 
-  const handleEntryChange = (event) => {
-    console.log(event.target.value);
-    setNewName(event.target.value);
-  };
+  const deleteEntry = (event) => {
+    console.log("works")
+    console.log(event.target.value)
 
-  const handleNumberChange = (event) => {
-    console.log(event.target.value);
-    setNewNumber(event.target.value);
-  };
-
-  const handleFilterChange = (event) => {
-    console.log(event.target.value);
-    if (newFilter.length == 0) {
-      setShowAll(true);
-    } else {
-      setShowAll(false);
+    if (confirm("Do you want to delete " + event.target.name)) {
+      phonebookService.deleteEntry(event.target.value).then((returnedEntry) => {
+        console.log("returned", returnedEntry)
+        setPersons(persons.filter((person) => person.id !== event.target.value))
+      })
     }
-    setNewFilter(event.target.value);
-  };
+  }
 
-  const personsToShow = showAll
+  const handleChange = (event) => {
+    const {name, value} = event.target
+    if (name === "name") setNewEntry({name: value , number: newEntry.number})
+    else if (name === "number") setNewEntry({name: newEntry.name , number: value})
+  }
+
+  const handleFilterChange = (event) => setNewFilter(event.target.value)
+
+  const filteredEntries = newFilter.length == 0
     ? persons
     : persons.filter((person) =>
         person.name.toLowerCase().includes(newFilter.toLowerCase()),
       );
 
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-        {" "}
-        filter shown with:{" "}
-        <input value={newFilter} onChange={handleFilterChange} />{" "}
-      </div>
-      <form onSubmit={addEntry}>
-        <div>
-          {" "}
-          name: <input value={newName} onChange={handleEntryChange} />{" "}
-        </div>
-        <div>
-          {" "}
-          number: <input value={newNumber} onChange={handleNumberChange} />{" "}
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {personsToShow.map((person) => (
-        <Entry key={person.id} person={person} />
-      ))}
+      <Filter onChange={handleFilterChange} newFilter={newFilter} />
+      <h3>Add a new number</h3>
+      <PersonForm newEntry={newEntry} addEntry={addEntry} onChange={handleChange} />
+      <h3>Numbers</h3>
+      <PersonList persons={filteredEntries} onClick={deleteEntry} />
     </div>
   );
 };
