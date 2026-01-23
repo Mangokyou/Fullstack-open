@@ -1,5 +1,4 @@
 
-
 const PersonList = ({persons, onClick}) => {
     return (
         <div>
