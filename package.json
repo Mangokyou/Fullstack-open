@@ -1,0 +1,13 @@
+{
+  "name": "Fullstack-open",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:ui": "npx rimraf part3/dist || true && cd part2/phonebook && npm ci && npm run build && cp -r build ../../part3/dist",
+    "build:ui:win": "powershell -Command \"if (Test-Path 'part3/dist') { Remove-Item -Recurse -Force 'part3/dist' }; Set-Location 'part2/phonebook'; npm ci; npm run build; Copy-Item -Recurse -Force 'build' '..\\..\\part3\\dist'\"",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+  }
+}
+{  "scripts": {
+    "build:ui": "npx rimraf part3/dist || true && cd part2/phonebook && npm ci && npm run build && cp -r build ../../part3/dist"
+  }}
