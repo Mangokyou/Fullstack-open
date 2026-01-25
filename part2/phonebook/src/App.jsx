@@ -14,6 +14,7 @@ const App = () => {
   useEffect(() => {
     phonebookService.getAll().then((initialPhonebook) => {
       setPersons(initialPhonebook);
+      console.log(initialPhonebook)
     });
   }, []);
 
@@ -50,7 +51,6 @@ const App = () => {
     const newPerson = {
       name: newEntry.name,
       number: newEntry.number,
-      id: String(Math.max(...persons.map((o) => o.id)) + 1),
     };
 
     phonebookService.create(newPerson).then((returnedEntry) => {
