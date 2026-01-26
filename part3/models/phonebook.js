@@ -11,9 +11,23 @@ mongoose.connect(url, { family: 4 })
   .catch(error => {
     console.log('error connecting to MongoDB:', error.message)
   })
+
 const PersonSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    minLength: 8,
+    validate: {
+        validator: function(v) {
+           return /^\d{2,3}-\d+$/.test(v) 
+        },
+     message: "Phone number must fit this schema [2-3 Numbers - 1 or more Numbers] Example: [040-22334455]"
+    },
+  }
 })
 
 PersonSchema.set('toJSON', {

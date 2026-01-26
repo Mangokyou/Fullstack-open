@@ -23,29 +23,37 @@ const App = () => {
 
     const exists = persons.some((p) => p.name === newEntry.name);
     if (exists) {
-      confirm(
+      const change = confirm(
         `${newEntry.name} is already added to phonebook, replace the old number with a new one?`,
       );
-      phonebookService
-        .alterEntry(
-          persons.find((x) => x.name === newEntry.name),
-          newEntry.number,
-        )
-        .then((returnedEntry) => {
-          setPersons(
-            persons.map((p) => (p.id !== returnedEntry.id ? p : returnedEntry)),
-          );
-        });
-      setNewEntry({ name: "", number: "" });
 
-      setNewNotification({
-        message: `${newEntry.name}'s number was changed`,
-        class: "newEntry",
-      });
-      setTimeout(() => {
-        setNewNotification(null);
-      }, 5000);
-      return;
+      console.log(change)
+
+      if (change) {
+        phonebookService
+          .alterEntry(
+            persons.find((x) => x.name === newEntry.name),
+            newEntry.number,
+          )
+          .then((returnedEntry) => {
+            setPersons(
+              persons.map((p) => (p.id !== returnedEntry.id ? p : returnedEntry)),
+            );
+          });
+        setNewEntry({ name: "", number: "" });
+
+        setNewNotification({
+          message: `${newEntry.name}'s number was changed`,
+          class: "newEntry",
+        });
+        setTimeout(() => {
+          setNewNotification(null);
+        }, 5000);
+        return;
+      } else {
+        setNewEntry({ name: "", number: "" });
+        return;
+      }
     }
 
     const newPerson = {
@@ -63,7 +71,17 @@ const App = () => {
       setTimeout(() => {
         setNewNotification(null);
       }, 5000);
-    });
+    })
+    .catch(error => {
+      setNewNotification({
+        message: error.response.data.error,
+        class: "error"
+      });
+      setTimeout(() => {
+        setNewNotification(null);
+      }, 5000);
+    })
+
   };
 
   const deleteEntry = (event) => {
