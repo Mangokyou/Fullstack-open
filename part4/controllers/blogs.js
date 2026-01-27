@@ -7,7 +7,7 @@ blogsRouter.get('/', (request, response) => {
   })
 })
 
-blogsRouter.get('/:id', (request, response) => {
+blogsRouter.get('/:id', (request, response, next) => {
   Blog.findById(request.params.id)
   .then(blog => {
     if (blog) {
@@ -16,14 +16,15 @@ blogsRouter.get('/:id', (request, response) => {
       response.status(404).end()
     }
   })
+  .catch(error => next(error))
 })
 
-blogsRouter.post('/', (request, response) => {
+blogsRouter.post('/', (request, response, next) => {
   const body = request.body
 
   const blog = new Blog ({
     title: body.title,
-    author: body.author,
+    author: body.author || 'unknown',
     url: body.url,
     likes: 0
   })
@@ -32,6 +33,7 @@ blogsRouter.post('/', (request, response) => {
   .then(savedBlog => {
     response.json(savedBlog)
   })
+  .catch(error => next(error))
 })
 
 
