@@ -89,7 +89,7 @@ describe('total likes',() => {
     assert.strictEqual(result, 7)
   })
 
-  test('when list has many blogs, equals the likes of that', () => {
+  test('when list has many blogs, equals the likes of all blogs combined', () => {
     const result = listHelper.totalLikes(manyBlogList)
     assert.strictEqual(result, 36)
   })
@@ -115,7 +115,7 @@ describe('most popular blog', () => {
   })
   })
 
-  test('when list has many blogs, equals the likes of that', () => {
+  test('when list has many blogs, equals the blog with the most likes', () => {
     const result = listHelper.favoriteBlog(manyBlogList)
     assert.deepStrictEqual(result, {
     _id: "5a422b3a1b54a676234d17f9",
@@ -136,12 +136,12 @@ describe('author with most blogs', () => {
     assert.strictEqual(result, null)
   }) 
 
-  test('when list has only one blog, equals the likes of that', () => {
+  test('when list has only one blog, equals one', () => {
     const result = listHelper.mostBlogs(oneBlogList)
     assert.deepStrictEqual(result, {author: "Michael Chan", blogs: 1 })
   })
 
-  test('when list has many blogs, equals the likes of that', () => {
+  test('when list has many blogs, equals the author with the most blogs', () => {
     const result = listHelper.mostBlogs(manyBlogList)
     assert.deepStrictEqual(result, {author: "Robert C. Martin", blogs: 3})
   })
@@ -160,7 +160,7 @@ describe('author with most likes across all blogs', () => {
     assert.deepStrictEqual(result, {author: "Michael Chan", likes: 7 })
   })
 
-  test('when list has many blogs, equals the likes of that', () => {
+  test('when list has many blogs, equals the likes of the author with the most likes across all his blogs', () => {
     const result = listHelper.mostLikes(manyBlogList)
     assert.deepStrictEqual(result, {author: "Edsger W. Dijkstra", likes: 17})
   })
