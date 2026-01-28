@@ -103,7 +103,7 @@ const App = () => {
           setNewNotification(null);
         }, 5000);
       })
-      .catch((error) => {
+      .catch(() => {
         setNewNotification({
           message: `${event.target.name} was already removed from the server`,
           class: "error",
