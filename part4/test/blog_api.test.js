@@ -92,10 +92,50 @@ test('Adding a blog without a url property will result in status 400 Bad Request
     .expect(400)
 })
 
+test("Deleting a blog with an valid id results in status 204 ", async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToBeDeleted = blogsAtStart[0]
 
+  await api.delete(`/api/blogs/${blogToBeDeleted.id}`).expect(204)
 
+  const blogsAtEnd = await helper.blogsInDb()
 
+  const ids = blogsAtEnd.map(n => n.id)
+  assert(!ids.includes(blogToBeDeleted.id))
 
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+})
+
+test("Updating a blogs likes with an valid id results in status 201 and updates the value correctly", async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToBeChanged = blogsAtStart[0]
+  
+  const changedBlog = {
+    likes: 20,
+  }
+
+  const response = await api
+    .put(`/api/blogs/${blogToBeChanged.id}`)
+    .send(changedBlog)
+    .expect(201)
+
+    assert.strictEqual(20, response.body.likes)
+  
+
+})
+
+test('Updating a blog with an invalid id results in status 400', async () => {
+  const invalidID = "697b5e8bd98d0841a51ae500"
+
+  const changedBlog = {
+      likes: 20,
+    }
+
+    const response = await api
+      .put(`/api/blogs/${invalidID}`)
+      .send(changedBlog)
+      .expect(404)
+})
 
 after(async () => {
   await mongoose.connection.close()
